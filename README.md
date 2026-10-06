@@ -151,7 +151,9 @@ turned on but not installed or signed in shows `!`.
   you've used and what's left.
 * Light and dark taskbars both have their own colors.
 
-![Every state, shown for 2 Claude + 1 Codex](previews/states.png)
+The same four themes in each state, shown for 2 Claude + 1 Codex:
+
+![The four themes in each state, shown for 2 Claude + 1 Codex](previews/states.png)
 
 ## Make your own
 

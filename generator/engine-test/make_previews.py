@@ -60,7 +60,7 @@ def sheet(pngs, title, rows):
 def main(pngs, out):
     out.mkdir(parents=True, exist_ok=True)
     pages = {"designs": sheet(pngs, "Headroom: one theme per design, sized to what you use", MIXES),
-             "states": sheet(pngs, "States, shown for 2 Claude + 1 Codex", STATES)}
+             "states": sheet(pngs, "Headroom states (2 Claude + 1 Codex)", STATES)}
     for design, name in DESIGNS:
         header = "<tr><th></th><th>normal</th><th>on hover</th></tr>"
         rows = [f"<tr><td>{label}</td>{image(pngs, design, key, False, mode)}{image(pngs, design, key, True, mode)}</tr>"
