@@ -424,6 +424,7 @@ def build_theme(design, base):
     surface["width"], surface["height"] = spec["width"](n), "46"
     first, second = spec["views"][0][0], spec["views"][1][0]
     surface["mouse_events"] = {
+        "double_click": "show_dashboard()",
         "right_click": 'show_context_menu("classic-v1")',
         "mouse_enter": f'set("{first}", render, 0); set("{second}", render, 1)',
         "mouse_leave": f'reset("{first}", render); reset("{second}", render)',

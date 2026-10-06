@@ -28,6 +28,7 @@
       },
       "border": null,
       "mouse_events": {
+        "double_click": "show_dashboard()",
         "right_click": "show_context_menu(\"classic-v1\")",
         "mouse_enter": "set(\"lanes-5h\", render, 0); set(\"lanes-wk\", render, 1)",
         "mouse_leave": "reset(\"lanes-5h\", render); reset(\"lanes-wk\", render)"

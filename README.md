@@ -2,9 +2,9 @@
 
 Headroom is a set of compact taskbar themes for [Claude Code Usage Monitor](https://github.com/CodeZeno/Claude-Code-Usage-Monitor),
 the Windows taskbar widget by CodeZeno. They show how much headroom you have left on your AI usage
-limits: every Claude and Codex account you've set up, plus Antigravity, OpenCode, Cursor, Grok and
-Copilot if you've turned them on in the monitor. Each one gets a slot, and each theme sizes itself to
-the slots you use, so there's nothing to pick per setup.
+limits: up to 5 Claude accounts and 5 Codex accounts, plus Antigravity, OpenCode, Cursor, Grok and
+Copilot (one account each) if you've turned them on in the monitor. Lanes shows up to 3 of these at
+once and the other themes up to 6, and each theme widens or narrows to fit how many it's showing.
 
 ![All four themes with different mixes of accounts and providers](previews/designs.png)
 

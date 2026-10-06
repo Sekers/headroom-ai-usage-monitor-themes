@@ -28,6 +28,7 @@
       },
       "border": null,
       "mouse_events": {
+        "double_click": "show_dashboard()",
         "right_click": "show_context_menu(\"classic-v1\")",
         "mouse_enter": "set(\"cells-gauges\", render, 0); set(\"cells-numbers\", render, 1)",
         "mouse_leave": "reset(\"cells-gauges\", render); reset(\"cells-numbers\", render)"

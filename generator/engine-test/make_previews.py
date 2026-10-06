@@ -32,7 +32,8 @@ STATES = [("weekly-high", "Weekly limits running high (PER 80%, WRK 100%)", "dar
           ("remaining", "Showing what's left (Remaining)", "dark"),
           ("c2x1", "Light taskbar", "light"),
           ("weekly-high", "Light taskbar, weekly limits running high", "light")]
-PER_THEME = [("c1x0", "1 Claude account", "dark"), ("c2x1", "2 Claude + 1 Codex", "dark"),
+PER_THEME = [("c1x0", "1 Claude account", "dark"), ("c1x1", "1 Claude + 1 Codex", "dark"),
+             ("c2x1", "2 Claude + 1 Codex", "dark"),
              ("c1x2", "1 Claude + 2 Codex", "dark"), ("c3x3", "3 Claude + 3 Codex", "dark"),
              ("all-providers", "Claude + Codex + 5 other providers", "dark"),
              ("weekly-high", "Weekly limits running high", "dark"), ("c2x1", "Light taskbar", "light")]

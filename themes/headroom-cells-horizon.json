@@ -28,6 +28,7 @@
       },
       "border": null,
       "mouse_events": {
+        "double_click": "show_dashboard()",
         "right_click": "show_context_menu(\"classic-v1\")",
         "mouse_enter": "set(\"horizon-gauges\", render, 0); set(\"horizon-both\", render, 1)",
         "mouse_leave": "reset(\"horizon-gauges\", render); reset(\"horizon-both\", render)"
