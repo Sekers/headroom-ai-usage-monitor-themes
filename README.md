@@ -15,10 +15,10 @@ Windows the themes use Segoe UI.
 
 | Theme | Download | Width for 1, 2, 3 slots | Shows up to | Best for |
 | --- | --- | --- | --- | --- |
-| [Headroom Lanes](#headroom-lanes) | [headroom-lanes.json](themes/headroom-lanes.json) | 145 px for any number | 3 slots | Reading exact numbers at a glance |
-| [Headroom Cells](#headroom-cells) | [headroom-cells.json](themes/headroom-cells.json) | 30, 62, 94 px | 6 slots | The smallest footprint |
-| [Headroom Cells Horizon](#headroom-cells-horizon) | [headroom-cells-horizon.json](themes/headroom-cells-horizon.json) | 30, 62, 94 px | 6 slots | Cells, with both limits a hover away |
-| [Headroom Pills](#headroom-pills) | [headroom-pills.json](themes/headroom-pills.json) | 60, 123, 186 px | 6 slots | The largest, easiest-to-read numbers |
+| [Headroom Lanes](#headroom-lanes) | [headroom-lanes.json](https://github.com/Sekers/headroom-ai-usage-monitor-themes/releases/latest/download/headroom-lanes.json) | 145 px for any number | 3 slots | Reading exact numbers at a glance |
+| [Headroom Cells](#headroom-cells) | [headroom-cells.json](https://github.com/Sekers/headroom-ai-usage-monitor-themes/releases/latest/download/headroom-cells.json) | 30, 62, 94 px | 6 slots | The smallest footprint |
+| [Headroom Cells Horizon](#headroom-cells-horizon) | [headroom-cells-horizon.json](https://github.com/Sekers/headroom-ai-usage-monitor-themes/releases/latest/download/headroom-cells-horizon.json) | 30, 62, 94 px | 6 slots | Cells, with both limits a hover away |
+| [Headroom Pills](#headroom-pills) | [headroom-pills.json](https://github.com/Sekers/headroom-ai-usage-monitor-themes/releases/latest/download/headroom-pills.json) | 60, 123, 186 px | 6 slots | The largest, easiest-to-read numbers |
 
 Every slot has a main limit and, for most providers, a second one. For Claude and Codex they're the
 5-hour and weekly windows; the other providers' limits are listed under
@@ -33,7 +33,7 @@ Every slot has a main limit and, for most providers, a second one. For Claude an
 * **On hover** each row switches to the second limit: its bar, percentage and time to reset, dimmed
   unless it's running high.
 * **Size:** 145 px wide whatever it shows, with up to 3 rows.
-* **File:** [themes/headroom-lanes.json](themes/headroom-lanes.json)
+* **Download:** [headroom-lanes.json](https://github.com/Sekers/headroom-ai-usage-monitor-themes/releases/latest/download/headroom-lanes.json)
 
 ### Headroom Cells
 
@@ -43,7 +43,7 @@ Every slot has a main limit and, for most providers, a second one. For Claude an
   name underneath.
 * **On hover** each cell shows the main limit's percentage and time to reset.
 * **Size:** 30 px for one slot and 32 px more for each extra one, up to 6.
-* **File:** [themes/headroom-cells.json](themes/headroom-cells.json)
+* **Download:** [headroom-cells.json](https://github.com/Sekers/headroom-ai-usage-monitor-themes/releases/latest/download/headroom-cells.json)
 
 ### Headroom Cells Horizon
 
@@ -54,7 +54,7 @@ Every slot has a main limit and, for most providers, a second one. For Claude an
   percentage under them, in gray unless it's running high. Its time to reset is the one number left
   out; Lanes and Pills show it.
 * **Size:** the same as Cells.
-* **File:** [themes/headroom-cells-horizon.json](themes/headroom-cells-horizon.json)
+* **Download:** [headroom-cells-horizon.json](https://github.com/Sekers/headroom-ai-usage-monitor-themes/releases/latest/download/headroom-cells-horizon.json)
 
 ### Headroom Pills
 
@@ -64,13 +64,13 @@ Every slot has a main limit and, for most providers, a second one. For Claude an
   and a thin line for the second.
 * **On hover** each card switches to the second limit, dimmed unless it's running high.
 * **Size:** 60 px per card with 3 px between them, up to 6.
-* **File:** [themes/headroom-pills.json](themes/headroom-pills.json)
+* **Download:** [headroom-pills.json](https://github.com/Sekers/headroom-ai-usage-monitor-themes/releases/latest/download/headroom-pills.json)
 
 ## Install
 
 1. Install Claude Code Usage Monitor (`winget install CodeZeno.ClaudeCodeUsageMonitor`), version
    2.11.28 or later for multiple accounts. The themes were built and tested against 2.18.1.
-2. Download a theme from [The themes](#the-themes): open its file and click **Download raw file**.
+2. Download a theme by clicking its file in the **Download** column of [The themes](#the-themes).
 3. Open the monitor's dashboard, go to **Theme Studio**, click **Import...** and choose the file.
 4. Select it under **Settings > Appearance > Active theme** if it isn't already active.
 
