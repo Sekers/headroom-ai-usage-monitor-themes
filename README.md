@@ -89,7 +89,9 @@ Every slot has a main limit and, for most providers, a second one. For Claude an
 
 1. Install Claude Code Usage Monitor (`winget install CodeZeno.ClaudeCodeUsageMonitor`), version
    2.11.28 or later for multiple accounts. The themes were built and tested against 2.18.1.
-2. Download a theme by clicking its file in the **Download** column of [The themes](#the-themes).
+2. Download a theme by clicking its file in the **Download** column of [The themes](#the-themes), or
+   from the assets of the
+   [latest release](https://github.com/Sekers/headroom-ai-usage-monitor-themes/releases/latest).
 3. Open the monitor's dashboard, go to **Theme Studio**, click **Import...** and choose the file.
 4. Select it under **Settings > Appearance > Active theme** if it isn't already active.
 
