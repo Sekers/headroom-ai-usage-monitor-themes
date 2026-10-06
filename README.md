@@ -36,7 +36,7 @@ Windows the themes use Segoe UI.
 | --- | --- | --- | --- | --- |
 | [Headroom Lanes](#headroom-lanes) | [headroom-lanes.json](https://github.com/Sekers/headroom-ai-usage-monitor-themes/releases/latest/download/headroom-lanes.json) | 145 px for any number | 3 slots | Reading exact numbers at a glance |
 | [Headroom Cells](#headroom-cells) | [headroom-cells.json](https://github.com/Sekers/headroom-ai-usage-monitor-themes/releases/latest/download/headroom-cells.json) | 30, 62, 94 px | 6 slots | The smallest footprint |
-| [Headroom Cells Horizon](#headroom-cells-horizon) | [headroom-cells-horizon.json](https://github.com/Sekers/headroom-ai-usage-monitor-themes/releases/latest/download/headroom-cells-horizon.json) | 30, 62, 94 px | 6 slots | Cells, with both limits a hover away |
+| [Headroom Cells Horizon](#headroom-cells-horizon) | [headroom-cells-horizon.json](https://github.com/Sekers/headroom-ai-usage-monitor-themes/releases/latest/download/headroom-cells-horizon.json) | 30, 62, 94 px | 6 slots | Cells, with the weekly percentage too when you hover |
 | [Headroom Pills](#headroom-pills) | [headroom-pills.json](https://github.com/Sekers/headroom-ai-usage-monitor-themes/releases/latest/download/headroom-pills.json) | 60, 123, 186 px | 6 slots | The largest, easiest-to-read numbers |
 
 Every slot has a main limit and, for most providers, a second one. For Claude and Codex they're the
