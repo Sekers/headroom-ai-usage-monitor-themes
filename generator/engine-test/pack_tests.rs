@@ -53,13 +53,17 @@ fn mix(claude: usize, codex: usize) -> Vec<Acct> {
     accounts(&list)
 }
 
+/// Added to every future reset so a slow render can't round "3d" down to "2d": the engine floors
+/// whole days, hours and minutes, and the samples sit exactly on those boundaries.
+const RESET_MARGIN: u64 = 30;
+
 fn section(reading: Option<(f64, i64)>, now: SystemTime) -> UsageSection {
     match reading {
         Some((percentage, seconds)) => UsageSection {
             available: true,
             percentage,
             resets_at: Some(if seconds >= 0 {
-                now + Duration::from_secs(seconds as u64)
+                now + Duration::from_secs(seconds as u64 + RESET_MARGIN)
             } else {
                 now - Duration::from_secs((-seconds) as u64)
             }),
@@ -226,6 +230,8 @@ fn theme_pack_validates_and_renders() {
     scenarios.push(("error-loading".into(), with(&[(0, Slot::Error), (2, Slot::Loading)]), runtime.with_poll_state(true, true)));
     // The account closest to its limits has no 5-hour window.
     scenarios.push(("no-5h-closest".into(), with(&[(2, Slot::Ok(None, Some((95.0, 2 * 86400)), false))]), runtime));
+    // An account without a 5-hour window whose weekly window just reset, carried over from an earlier refresh.
+    scenarios.push(("no-5h-reset".into(), with(&[(2, Slot::Ok(None, Some((70.0, -60)), true))]), runtime));
     scenarios.push(("all-failed".into(), with(&[(0, Slot::Error), (1, Slot::Error), (2, Slot::Error)]), runtime.with_poll_state(false, true)));
     scenarios.push(("remaining".into(), Some(base.clone()), runtime.with_countdown(true)));
     let long: Vec<Acct> = accounts(&[(C, "default", "WORK"), (C, "account_1", "HOME"), (X, "default", "TEAM")])
@@ -252,6 +258,8 @@ fn theme_pack_validates_and_renders() {
     ];
     scenarios.push(("all-providers".into(), Some(mix(1, 1)), only(&[C, X, Antigravity, OpenCode, Cursor, Grok, Copilot]), others.clone()));
     scenarios.push(("providers-only".into(), Some(Vec::new()), only(&[Cursor, Grok, Copilot]), others[2..].to_vec()));
+    // Cursor reporting API usage but no included usage: its second limit takes the main one's place.
+    scenarios.push(("provider-no-main".into(), Some(mix(1, 0)), only(&[C, Cursor]), vec![(Cursor, pool(15.0, 12 * 86400))]));
     scenarios.push(("provider-no-data".into(), Some(mix(1, 0)), only(&[C, Cursor]), vec![(Cursor, Slot::Loading)]));
 
     let mut problems = Vec::new();

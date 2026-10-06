@@ -14,6 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - name: Check the themes match build.py
+        run: |
+          python3 generator/build.py
+          git diff --exit-code themes/
       - name: Publish the themes
         env:
           GH_TOKEN: ${{ github.token }}

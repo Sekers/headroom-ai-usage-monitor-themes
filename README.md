@@ -88,11 +88,12 @@ Every slot has a main limit and, for most providers, a second one. For Claude an
 ## Install
 
 1. Install Claude Code Usage Monitor (`winget install CodeZeno.ClaudeCodeUsageMonitor`), version
-   2.11.28 or later for multiple accounts. The themes were built and tested against 2.18.1.
+   2.18.1 or later. The themes were built and tested against 2.18.1.
 2. Download a theme by clicking its file in the **Download** column of [The themes](#the-themes), or
    from the assets of the
    [latest release](https://github.com/Sekers/headroom-ai-usage-monitor-themes/releases/latest).
-3. Open the monitor's dashboard, go to **Theme Studio**, click **Import...** and choose the file.
+3. Open the monitor's dashboard, go to **Theme Studio**, click the upload icon (its tooltip says
+   **Import...**) and choose the file.
 4. Select it under **Settings > Appearance > Active theme** if it isn't already active.
 
 ## What shows
@@ -110,8 +111,9 @@ Each account or provider you use gets one slot, in this order:
   slots.
 * **Order:** Claude accounts first, then Codex accounts, each in the order you added them, then the
   other providers.
-* **Anything turned off** under **Settings > Providers** doesn't show and takes no space. The widget
-  resizes itself when you add or remove an account or turn a provider on or off.
+* **Anything turned off** under **Settings > Providers** doesn't show and takes no space, once the
+  monitor's next refresh finishes. The widget resizes itself when you add or remove an account or
+  turn a provider on or off.
 * **Claude is on by default** in the monitor. If you don't use it, turn it off; otherwise its unused
   account still gets a slot, showing `CLD` and `!`.
 * **At startup** each Claude or Codex account appears once its first refresh finishes; until then the
@@ -130,9 +132,9 @@ Each account or provider you use gets one slot, in this order:
 * **Account IDs.** The monitor gives each account a fixed ID: a provider's first account is `default`,
   accounts you add are `account_1`, `account_2` and so on, and an ID is never reused, even after you
   delete its account. The themes look for `default` through `account_4` for each provider, which is
-  where the limit of 5 comes from. Each account's ID shows as its **Theme binding** under
-  **Settings > Providers > Accounts**. If an account doesn't show, see
-  [Troubleshooting](#an-account-doesnt-show).
+  where the limit of 5 comes from. Each account's ID shows as its **Theme binding**, inside the
+  account's **Custom credentials file** section under **Settings > Providers > Accounts**. If an
+  account doesn't show, see [Troubleshooting](#an-account-doesnt-show).
 
 To keep several Claude logins signed in at once, give each its own configuration directory (Claude
 Code's `CLAUDE_CONFIG_DIR`) and point the account's **Config directory** at it.
@@ -153,6 +155,9 @@ fixed label and color. Their limits aren't all 5-hour and weekly windows:
 Grok and Copilot have no second limit, so hovering shows their one limit again. A provider that's
 turned on but not installed or signed in shows `!`.
 
+When a plan doesn't report its main limit, such as a Codex plan without a 5-hour window, its second
+limit takes the main one's place, and the slot works like Grok's and Copilot's.
+
 ## Reading the widget
 
 * **Colors.** Each slot keeps its own color wherever it sits. By account ID, Claude accounts are
@@ -168,7 +173,7 @@ turned on but not installed or signed in shows `!`.
   HTTP 429 from Anthropic's usage endpoint. If that happens a lot, raise **Update frequency** under
   **Settings > General** (the default is 15 minutes).
 * **`!`** means the last refresh failed with nothing to fall back on; hover the tray icon for the
-  reason. **`--`** means it's still loading. **`n/a`** means the plan has no such limit.
+  reason. **`--`** means it's still loading. **`n/a`** means the plan doesn't report that limit.
 * **Used or remaining.** **Settings > Display > Usage direction** switches between showing what
   you've used and what's left.
 * Light and dark taskbars both have their own colors.
@@ -213,17 +218,21 @@ other providers' limits or the warning thresholds near the top, or a theme's max
 python generator/build.py
 ```
 
-It writes the four themes to `themes/`. To check them with the monitor's own engine and redraw the
-previews, see [generator/engine-test](generator/engine-test/README.md).
+It writes the four themes to `themes/`. Each provider has 5 account colors, so IDs past the fifth
+reuse them from the start. To check the themes with the monitor's own engine and redraw the previews,
+see [generator/engine-test](generator/engine-test/README.md).
 
 ## Troubleshooting
 
 ### An account doesn't show
 
-Check its **Theme binding** under **Settings > Providers > Accounts**. If it ends in `account_5` or
-higher, the themes don't look for it. That happens after you've deleted and added accounts a few
-times, because a deleted account's ID is never handed out again. You can fix it by giving the account
-a free ID in the monitor's settings file:
+First make sure its **Monitor** box is ticked under **Settings > Providers > Accounts**. An account
+you add starts with it unticked, and an unticked account never shows.
+
+Then check its **Theme binding**, inside the account's **Custom credentials file** section. If it ends
+in `account_5` or higher, the themes don't look for it. That happens after you've deleted and added
+accounts a few times, because a deleted account's ID is never handed out again. You can fix it by
+giving the account a free ID in the monitor's settings file:
 
 1. Right-click the widget and choose **Exit**, so the monitor can't overwrite your change.
 2. Press **Win+R**, paste `notepad %APPDATA%\ClaudeCodeUsageMonitor\settings.json` and press
@@ -258,7 +267,10 @@ monitor adds it back.
 **If you'd rather not edit the settings,** you can change the theme instead. Open the theme's `.json`
 file in a text editor, replace every `accounts.claude.account_4` (or `accounts.codex.account_4`)
 with the stuck account's binding, such as `accounts.claude.account_6`, then import the theme again in
-**Theme Studio**. If you do have an `account_4`, replace an ID you don't use instead. Or rebuild the themes with more IDs in `ACCOUNT_IDS` (see [Make your own](#make-your-own)).
+**Theme Studio**. If you do have an `account_4`, replace an ID you don't use instead. Give that account
+a short name too: the theme no longer recognizes the name the monitor gave it, such as "Account 6",
+so it shows that name, cut off, instead of a short label like `CLD5`. Or rebuild the themes with more
+IDs in `ACCOUNT_IDS` (see [Make your own](#make-your-own)).
 
 ## Credits and license
 
