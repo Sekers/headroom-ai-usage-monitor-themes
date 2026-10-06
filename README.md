@@ -203,8 +203,6 @@ hidden.
 | Right-click | The monitor's menu | The monitor's menu |
 | Hover | Switch to the second limit | The monitor's tooltip |
 
-A single click on the tray icon takes a moment, while Windows waits to see whether it's a double-click.
-
 ## Make your own
 
 The themes come from [generator/build.py](generator/build.py). Edit `ACCOUNT_IDS`, the colors, the
