@@ -222,6 +222,11 @@ It writes the four themes to `themes/`. Each provider has 5 account colors, so I
 reuse them from the start. To check the themes with the monitor's own engine and redraw the previews,
 see [generator/engine-test](generator/engine-test/README.md).
 
+Run `python generator/build.py --check` to verify the generated files without rewriting them.
+It fails if a theme is missing, differs from the generator, or an unexpected JSON file is present.
+GitHub Actions checks this and renders the themes with the native Windows engine on pushes and
+pull requests, and before publishing a release.
+
 ## Troubleshooting
 
 ### An account doesn't show

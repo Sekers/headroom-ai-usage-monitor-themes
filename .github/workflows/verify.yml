@@ -1,0 +1,43 @@
+name: Verify
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  generated:
+    name: Generated themes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check generated themes
+        run: python3 generator/build.py --check
+
+  engine:
+    name: Windows theme engine
+    needs: generated
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Install the pinned Rust toolchain
+        run: rustup toolchain install 1.95.0 --profile minimal
+      - name: Validate and render in dark and light mode
+        run: python generator/engine-test/run.py "$env:RUNNER_TEMP\headroom-build" "$env:RUNNER_TEMP\headroom-renders"
+      - name: Save Windows renders for review
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-renders
+          path: ${{ runner.temp }}/headroom-renders
+          if-no-files-found: ignore
+          retention-days: 7

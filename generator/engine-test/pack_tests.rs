@@ -179,10 +179,8 @@ fn expected_width(theme_id: &str, count: usize) -> u32 {
 
 #[test]
 fn theme_pack_validates_and_renders() {
-    let (Ok(pack), Ok(out)) = (std::env::var("THEME_PACK_DIR"), std::env::var("THEME_PACK_OUT")) else {
-        eprintln!("THEME_PACK_DIR / THEME_PACK_OUT not set; skipping");
-        return;
-    };
+    let pack = std::env::var("THEME_PACK_DIR").expect("THEME_PACK_DIR must be set");
+    let out = std::env::var("THEME_PACK_OUT").expect("THEME_PACK_OUT must be set");
     let (pack, out) = (PathBuf::from(pack), PathBuf::from(out));
     std::fs::create_dir_all(&out).unwrap();
     let dark = crate::theme::is_dark_mode();
@@ -269,6 +267,7 @@ fn theme_pack_validates_and_renders() {
         .filter(|path| path.extension().is_some_and(|ext| ext == "json"))
         .collect();
     files.sort();
+    assert_eq!(files.len(), 4, "expected all four Headroom theme files");
     let (mut rendered_count, mut slowest) = (0, (Duration::ZERO, String::new()));
     for path in &files {
         let theme = match theme_storage::load_theme(path) {
@@ -309,6 +308,9 @@ fn theme_pack_validates_and_renders() {
                     rendered_count += 1;
                     for warning in &rendered.warnings {
                         problems.push(format!("{} {name} hover={hovered} @{scale}: {warning}", theme.id));
+                    }
+                    if rendered.pixels.iter().all(|pixel| pixel >> 24 == 0) {
+                        problems.push(format!("{} {name} hover={hovered} @{scale}: blank widget", theme.id));
                     }
                     if scale == 1.75 {
                         let suffix = if hovered { "-hover" } else { "" };

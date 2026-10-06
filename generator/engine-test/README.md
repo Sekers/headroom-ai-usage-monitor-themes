@@ -9,18 +9,37 @@ problem or a blank tray icon, and checks the widget's width for every mix. It sa
 
 | File | What it is |
 | --- | --- |
+| `run.py` | Runs the Windows checks in an isolated checkout, in both dark and light mode. |
 | `pack_tests.rs` | The test, added to a checkout of the monitor. |
 | `make_previews.py` | Builds the preview pages from the test's PNGs. |
 | `screenshot.js` | Turns those pages into the PNGs in `previews/`. |
 | `wine/` | What it takes to run the test on Linux, under Wine. |
 
-The mixes cover 1 to 7 Claude and Codex accounts in every combination, account IDs with gaps,
+The mixes cover 1 to 7 Claude and Codex accounts in several combinations, account IDs with gaps,
 accounts with the names the monitor gave them, every other provider on, providers without Claude,
-and a provider with no reading yet. Each also renders with a stale reading, a passed reset, a failed
-refresh, every refresh failing, loading, a plan without a 5-hour window, weekly limits running high,
-Remaining mode, and four-letter names at 100%.
+and a provider with no reading yet. Additional scenarios render with a stale reading, a passed reset,
+a failed refresh, every refresh failing, loading, a plan without a 5-hour window, weekly limits
+running high, Remaining mode, and four-letter names at 100%.
 
 ## Run it on Windows
+
+For an automated run, install Git, Rust 1.95 with the MSVC toolchain, the Visual Studio C++ build
+tools, and a Windows SDK. Then, from this repo:
+
+```powershell
+python generator\engine-test\run.py C:\path\to\new-build C:\path\to\renders
+```
+
+The runner clones v2.18.1 and verifies its exact commit before building with the locked dependencies.
+It adds the tests and a test-only color-mode override to that disposable checkout, then runs the
+tests in both dark and light mode without changing your Windows settings. Use a fresh build folder
+each time. The checkout and PNGs stay there for inspection.
+
+GitHub Actions runs the same checks on branch pushes and pull requests, and before publishing a
+release. Its `windows-renders` artifact contains the PNGs for seven days. Missing theme files,
+missing test configuration, and blank widgets also fail the check.
+
+To use a checkout you already have instead:
 
 1. Clone [Claude Code Usage Monitor](https://github.com/CodeZeno/Claude-Code-Usage-Monitor) and check
    out the version to test against (the themes were last tested with `v2.18.1`). Set it up to build

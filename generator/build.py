@@ -21,8 +21,10 @@ in OTHER_PROVIDERS. Hovering swaps the two, or shows the main limit's numbers if
 A slot whose plan doesn't report its main limit (some Codex plans have no 5-hour window) shows its
 second limit in its place, the way the tray icon does.
 """
+import argparse
 import copy
 import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -566,16 +568,37 @@ def build_theme(design, base):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check", action="store_true", help="Check the committed themes without rewriting them")
+    args = parser.parse_args()
     base = json.loads(BASE_THEME.read_text(encoding="utf-8"))
     out_dir = ROOT / "themes"
-    out_dir.mkdir(parents=True, exist_ok=True)
+    if not args.check:
+        out_dir.mkdir(parents=True, exist_ok=True)
+    expected, problems = set(), []
     for design in DESIGNS:
         theme = build_theme(design, base)
         path = out_dir / f"{theme['id']}.json"
-        path.write_text(json.dumps(theme, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        expected.add(path.name)
+        content = json.dumps(theme, indent=2, ensure_ascii=False) + "\n"
+        if args.check:
+            if not path.is_file():
+                problems.append(f"Missing theme: {path.relative_to(ROOT)}")
+            elif path.read_text(encoding="utf-8") != content:
+                problems.append(f"Theme differs from build.py: {path.relative_to(ROOT)}")
+            continue
+        path.write_text(content, encoding="utf-8")
         size = path.stat().st_size // 1024
         print(f"{path.relative_to(ROOT)}  {theme['name']}  {len(theme['surfaces'][0]['children'])} objects, {size} KB")
+    if args.check:
+        actual = {path.name for path in out_dir.glob("*.json")}
+        problems.extend(f"Unexpected theme: themes/{name}" for name in sorted(actual - expected))
+        if problems:
+            print("\n".join(problems), file=sys.stderr)
+            return 1
+        print(f"All {len(expected)} themes match build.py")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

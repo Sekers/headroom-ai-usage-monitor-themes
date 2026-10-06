@@ -7,21 +7,19 @@ on:
     tags: ["v*"]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
+  verify:
+    uses: ./.github/workflows/verify.yml
+
   release:
+    needs: verify
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v7
-      - name: Check the themes match build.py
-        run: |
-          python3 generator/build.py
-          # Untracked files count too: the upload below takes every themes/*.json.
-          if [ -n "$(git status --porcelain -- themes/)" ]; then
-            git status --short -- themes/
-            exit 1
-          fi
       - name: Publish the themes
         env:
           GH_TOKEN: ${{ github.token }}
@@ -30,5 +28,5 @@ jobs:
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" themes/*.json --clobber
           else
-            gh release create "$TAG" themes/*.json --title "$TAG" --generate-notes
+            gh release create "$TAG" themes/*.json --verify-tag --title "$TAG" --generate-notes
           fi
