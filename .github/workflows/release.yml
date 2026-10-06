@@ -17,7 +17,11 @@ jobs:
       - name: Check the themes match build.py
         run: |
           python3 generator/build.py
-          git diff --exit-code themes/
+          # Untracked files count too: the upload below takes every themes/*.json.
+          if [ -n "$(git status --porcelain -- themes/)" ]; then
+            git status --short -- themes/
+            exit 1
+          fi
       - name: Publish the themes
         env:
           GH_TOKEN: ${{ github.token }}

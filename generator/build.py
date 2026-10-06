@@ -33,8 +33,9 @@ PROVIDER_NAMES = {"claude": "Claude", "codex": "Codex"}
 # provider's first account and "Account 1", "Account 2"... for added ones (or the account ID, if the
 # name was cleared). The first account gets the code alone, later ones the code and their number.
 SHORT_NAMES = {"claude": "CLD", "codex": "CDX"}
-# Raise this list if you add and remove accounts often: an account outside it never shows. IDs past
-# the fifth reuse the colors below from the start.
+# Raise this list if you add and remove accounts often: an account outside it never shows. Each ID
+# is "default" or "account_" and its number, and they can skip numbers. IDs past the fifth reuse the
+# colors below from the start.
 ACCOUNT_IDS = ["default", "account_1", "account_2", "account_3", "account_4"]
 
 # Account colors by account ID, in ACCOUNT_IDS order: (bar fill, text on dark, text on light).
@@ -71,6 +72,16 @@ STALE_TEXT, STALE_BAR = "0.5", "0.4"
 
 # ---------------------------------------------------------------- slots and expressions
 
+def account_number(account_id):
+    """0 for "default", N for "account_N": the number CodeZeno puts in an added account's name."""
+    if account_id == "default":
+        return 0
+    prefix, _, number = account_id.partition("_")
+    if prefix != "account" or not number.isdigit() or int(number) == 0:
+        raise ValueError(f'ACCOUNT_IDS: "{account_id}" isn\'t "default" or "account_" and a number')
+    return int(number)
+
+
 def all_slots():
     """Every slot a theme has: Claude and Codex accounts in the order they were added, then the
     other providers."""
@@ -80,9 +91,10 @@ def all_slots():
             key = f"accounts.{provider}.{account_id}"
             colors = ACCOUNT_COLORS[provider]
             fill, dark, light = colors[index % len(colors)]
-            given = "Default" if index == 0 else f"Account {index}"
+            number = account_number(account_id)
+            given = "Default" if number == 0 else f"Account {number}"
             unnamed = f'(({key}.name == "{given}") || ({key}.name == "{account_id}"))'
-            short = SHORT_NAMES[provider] + ("" if index == 0 else str(index + 1))
+            short = SHORT_NAMES[provider] + ("" if number == 0 else str(number + 1))
             slots.append({"provider": provider, "key": key, "label": f"{{{key}.name}}",
                           "unnamed": unnamed, "short": short,
                           "slug": f"{provider[:2]}{index}",
