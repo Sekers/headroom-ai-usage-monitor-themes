@@ -11,6 +11,25 @@ once and the other themes up to 6, and each theme widens or narrows to fit how m
 The previews are rendered by the monitor's own theme engine with sample data and a stand-in font; on
 Windows the themes use Segoe UI.
 
+## Contents
+
+- [The themes](#the-themes)
+  - [Headroom Lanes](#headroom-lanes)
+  - [Headroom Cells](#headroom-cells)
+  - [Headroom Cells Horizon](#headroom-cells-horizon)
+  - [Headroom Pills](#headroom-pills)
+- [Install](#install)
+- [What shows](#what-shows)
+  - [Account names](#account-names)
+  - [Other providers](#other-providers)
+- [Reading the widget](#reading-the-widget)
+- [The tray icon](#the-tray-icon)
+- [Clicks](#clicks)
+- [Make your own](#make-your-own)
+- [Troubleshooting](#troubleshooting)
+  - [An account doesn't show](#an-account-doesnt-show)
+- [Credits and license](#credits-and-license)
+
 ## The themes
 
 | Theme | Download | Width for 1, 2, 3 slots | Shows up to | Best for |
@@ -110,52 +129,11 @@ Each account or provider you use gets one slot, in this order:
   accounts you add are `account_1`, `account_2` and so on, and an ID is never reused, even after you
   delete its account. The themes look for `default` through `account_4` for each provider, which is
   where the limit of 5 comes from. Each account's ID shows as its **Theme binding** under
-  **Settings > Providers > Accounts**.
+  **Settings > Providers > Accounts**. If an account doesn't show, see
+  [Troubleshooting](#an-account-doesnt-show).
 
 To keep several Claude logins signed in at once, give each its own configuration directory (Claude
 Code's `CLAUDE_CONFIG_DIR`) and point the account's **Config directory** at it.
-
-#### If an account doesn't show
-
-Check its **Theme binding** under **Settings > Providers > Accounts**. If it ends in `account_5` or
-higher, the themes don't look for it. That happens after you've deleted and added accounts a few
-times, because a deleted account's ID is never handed out again. You can fix it by giving the account
-a free ID in the monitor's settings file:
-
-1. Right-click the widget and choose **Exit**, so the monitor can't overwrite your change.
-2. Press **Win+R**, paste `notepad %APPDATA%\ClaudeCodeUsageMonitor\settings.json` and press
-   **Enter**.
-3. Find `"accounts"`, then `"claude"` or `"codex"`, then the account in `"profiles"` by its `"name"`.
-4. Change its `"id"` to one from `default`, `account_1`, `account_2`, `account_3` or `account_4` that
-   no other account under the same provider has. If the provider's `"selected"` line has the old ID,
-   change it there too.
-5. Save the file and start the monitor again.
-
-For example, with your second Claude account stuck on `account_6` and `account_1` free:
-
-```text
-"claude": {
-  "profiles": [
-    { "id": "default", "name": "PER", ... },
-    { "id": "account_6", "name": "WRK", ... }
-  ],
-  "selected": "default",
-  "used_ids": ["account_1", "account_2", "account_3", "account_4", "account_5", "account_6", "default"]
-}
-```
-
-change `"id": "account_6"` to `"id": "account_1"` and leave the rest. `used_ids` is the list of IDs
-the monitor won't hand out again; it can stay as it is.
-
-**To stop it from happening,** delete the IDs you no longer use from `used_ids` (here, everything but
-`account_1` and `default`) before you add your next account, the same way: exit, edit, save, start.
-New accounts then get the lowest free ID again. Removing an ID that's still in use does no harm; the
-monitor adds it back.
-
-**If you'd rather not edit the settings,** you can change the theme instead. Open the theme's `.json`
-file in a text editor, replace every `accounts.claude.account_4` (or `accounts.codex.account_4`)
-with the stuck account's binding, such as `accounts.claude.account_6`, then import the theme again in
-**Theme Studio**. If you do have an `account_4`, replace an ID you don't use instead. Or rebuild the themes with more IDs in `ACCOUNT_IDS` (see [Make your own](#make-your-own)).
 
 ### Other providers
 
@@ -237,6 +215,50 @@ python generator/build.py
 
 It writes the four themes to `themes/`. To check them with the monitor's own engine and redraw the
 previews, see [generator/engine-test](generator/engine-test/README.md).
+
+## Troubleshooting
+
+### An account doesn't show
+
+Check its **Theme binding** under **Settings > Providers > Accounts**. If it ends in `account_5` or
+higher, the themes don't look for it. That happens after you've deleted and added accounts a few
+times, because a deleted account's ID is never handed out again. You can fix it by giving the account
+a free ID in the monitor's settings file:
+
+1. Right-click the widget and choose **Exit**, so the monitor can't overwrite your change.
+2. Press **Win+R**, paste `notepad %APPDATA%\ClaudeCodeUsageMonitor\settings.json` and press
+   **Enter**.
+3. Find `"accounts"`, then `"claude"` or `"codex"`, then the account in `"profiles"` by its `"name"`.
+4. Change its `"id"` to one from `default`, `account_1`, `account_2`, `account_3` or `account_4` that
+   no other account under the same provider has. If the provider's `"selected"` line has the old ID,
+   change it there too.
+5. Save the file and start the monitor again.
+
+For example, with your second Claude account stuck on `account_6` and `account_1` free:
+
+```text
+"claude": {
+  "profiles": [
+    { "id": "default", "name": "PER", ... },
+    { "id": "account_6", "name": "WRK", ... }
+  ],
+  "selected": "default",
+  "used_ids": ["account_1", "account_2", "account_3", "account_4", "account_5", "account_6", "default"]
+}
+```
+
+change `"id": "account_6"` to `"id": "account_1"` and leave the rest. `used_ids` is the list of IDs
+the monitor won't hand out again; it can stay as it is.
+
+**To stop it from happening,** delete the IDs you no longer use from `used_ids` (here, everything but
+`account_1` and `default`) before you add your next account, the same way: exit, edit, save, start.
+New accounts then get the lowest free ID again. Removing an ID that's still in use does no harm; the
+monitor adds it back.
+
+**If you'd rather not edit the settings,** you can change the theme instead. Open the theme's `.json`
+file in a text editor, replace every `accounts.claude.account_4` (or `accounts.codex.account_4`)
+with the stuck account's binding, such as `accounts.claude.account_6`, then import the theme again in
+**Theme Studio**. If you do have an `account_4`, replace an ID you don't use instead. Or rebuild the themes with more IDs in `ACCOUNT_IDS` (see [Make your own](#make-your-own)).
 
 ## Credits and license
 
