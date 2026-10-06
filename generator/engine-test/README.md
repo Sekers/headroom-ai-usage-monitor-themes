@@ -39,6 +39,11 @@ GitHub Actions runs the same checks on branch pushes and pull requests, and befo
 release. Its `windows-renders` artifact contains the PNGs for seven days. Missing theme files,
 missing test configuration, and blank widgets also fail the check.
 
+Add `--latest` to test the monitor's newest release instead of v2.18.1. It installs the Rust version
+that release pins. GitHub Actions does this every Monday, so an engine change that breaks a theme
+fails a run (and GitHub emails the repo owner) before users report it. That workflow also keeps its
+own schedule turned on, which GitHub would otherwise turn off after 60 days without a commit.
+
 To use a checkout you already have instead:
 
 1. Clone [Claude Code Usage Monitor](https://github.com/CodeZeno/Claude-Code-Usage-Monitor) and check

@@ -1,15 +1,19 @@
 """Run the native Windows engine test in an isolated upstream checkout.
 
-    python generator/engine-test/run.py <build folder> <render folder>
+    python generator/engine-test/run.py <build folder> <render folder> [--latest]
 
 Requires Git, Rust 1.95 with the MSVC toolchain, and the Windows C++ build tools.
 The build folder's monitor subfolder must not already exist. The checkout and
 renders remain available for inspection after the command finishes.
+
+By default it tests the version the themes support. --latest tests the monitor's
+newest release instead, installing the Rust version that release pins.
 """
 import argparse
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -32,14 +36,27 @@ def run(command, cwd, **kwargs):
         raise
 
 
-def prepare(checkout):
+def latest_tag():
+    listed = run(["git", "ls-remote", "--tags", "--refs", UPSTREAM], ROOT, capture_output=True).stdout
+    versions = []
+    for line in listed.splitlines():
+        match = re.fullmatch(r"\S+\s+refs/tags/(v(\d+)\.(\d+)\.(\d+))", line)
+        if match:
+            versions.append((tuple(int(part) for part in match.groups()[1:]), match[1]))
+    if not versions:
+        raise RuntimeError(f"No release tags found at {UPSTREAM}")
+    return max(versions)[1]
+
+
+def prepare(checkout, tag=UPSTREAM_TAG):
     checkout.parent.mkdir(parents=True, exist_ok=True)
     if checkout.exists():
         raise RuntimeError(f"Use a fresh build folder; {checkout} already exists")
-    run(["git", "clone", "--depth", "1", "--branch", UPSTREAM_TAG, UPSTREAM, str(checkout)], ROOT)
+    run(["git", "clone", "--depth", "1", "--branch", tag, UPSTREAM, str(checkout)], ROOT)
     commit = run(["git", "rev-parse", "HEAD"], checkout, capture_output=True).stdout.strip()
-    if commit != UPSTREAM_COMMIT:
+    if tag == UPSTREAM_TAG and commit != UPSTREAM_COMMIT:
         raise RuntimeError(f"Upstream {UPSTREAM_TAG} changed: expected {UPSTREAM_COMMIT}, got {commit}")
+    print(f"Prepared upstream {tag} at {commit}", flush=True)
 
     # Only the disposable upstream checkout is changed. The renderer stays intact.
     engine = checkout / "src" / "theme_engine.rs"
@@ -66,12 +83,17 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
     parser.add_argument("renders", type=Path)
+    parser.add_argument("--latest", action="store_true", help="Test the monitor's newest release")
     args = parser.parse_args()
     if sys.platform != "win32":
         raise RuntimeError("This runner requires Windows; see README.md for Wine instructions")
     checkout, output = args.build.resolve() / "monitor", args.renders.resolve()
     output.mkdir(parents=True, exist_ok=True)
-    prepare(checkout)
+    tag = latest_tag() if args.latest else UPSTREAM_TAG
+    prepare(checkout, tag)
+    if args.latest:
+        # A newer release may pin a newer Rust; install whatever its rust-toolchain.toml names.
+        run(["rustup", "toolchain", "install"], checkout)
     environment = dict(os.environ, THEME_PACK_DIR=str(ROOT / "themes"), THEME_PACK_OUT=str(output))
     built = subprocess.run(
         ["cargo", "test", "--locked", "--no-run", "--bin", "claude-code-usage-monitor", "--message-format=json"],
@@ -95,14 +117,14 @@ def main():
     if f"{TEST}: test" not in listed.splitlines():
         raise RuntimeError(f"The upstream test binary does not contain {TEST}")
     for mode in ("dark", "light"):
-        print(f"Testing {UPSTREAM_TAG} on Windows in {mode} mode", flush=True)
+        print(f"Testing {tag} on Windows in {mode} mode", flush=True)
         # The upstream test executable uses the Windows GUI subsystem. Explicit
         # pipes keep its test results visible when Python has no console.
         result = run([executable, TEST, "--exact", "--nocapture"], checkout,
                      env=dict(environment, HEADROOM_TEST_DARK_MODE=mode), capture_output=True)
         print(result.stdout, end="", flush=True)
         print(result.stderr, file=sys.stderr, end="", flush=True)
-    print(f"Windows engine checks passed in both modes; renders: {output}")
+    print(f"Windows engine checks passed on {tag} in both modes; renders: {output}")
     return 0
 
 

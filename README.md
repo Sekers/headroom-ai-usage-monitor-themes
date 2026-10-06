@@ -225,7 +225,8 @@ see [generator/engine-test](generator/engine-test/README.md).
 Run `python generator/build.py --check` to verify the generated files without rewriting them.
 It fails if a theme is missing, differs from the generator, or an unexpected JSON file is present.
 GitHub Actions checks this and renders the themes with the native Windows engine on pushes and
-pull requests, and before publishing a release.
+pull requests, and before publishing a release. A weekly run also tests the monitor's newest
+release, to catch engine changes early.
 
 ## Troubleshooting
 

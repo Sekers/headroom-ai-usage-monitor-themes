@@ -1,0 +1,52 @@
+name: Newest monitor release
+
+# Weekly check that the themes still work with the monitor's newest release, so an engine
+# change shows up here before users report it. A failed run emails the repo owner.
+on:
+  schedule:
+    - cron: "17 9 * * 1"
+  workflow_dispatch:
+  push:
+    branches: ["**"]
+    paths:
+      - .github/workflows/latest-monitor.yml
+      - generator/engine-test/run.py
+
+permissions:
+  contents: read
+
+jobs:
+  engine:
+    name: Windows theme engine, newest release
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Validate and render in dark and light mode
+        run: python generator/engine-test/run.py "$env:RUNNER_TEMP\headroom-build" "$env:RUNNER_TEMP\headroom-renders" --latest
+      - name: Save Windows renders for review
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-renders-latest
+          path: ${{ runner.temp }}/headroom-renders
+          if-no-files-found: ignore
+          retention-days: 7
+
+  keepalive:
+    # GitHub turns off scheduled workflows in a public repo after 60 days without activity.
+    # Re-enabling this workflow through the API counts as activity, with no commit needed.
+    name: Keep the weekly schedule on
+    needs: engine
+    if: always() && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Re-enable this workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method PUT "repos/${{ github.repository }}/actions/workflows/latest-monitor.yml/enable"
