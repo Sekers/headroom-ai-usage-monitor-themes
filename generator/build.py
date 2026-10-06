@@ -389,6 +389,73 @@ DESIGNS = {
 }
 
 
+# ---------------------------------------------------------------- tray icon
+
+TRAY_SURFACE = "shared-tray-icon"
+TRAY_TRACK = {"dark": "#FFFFFF38", "light": "#00000030"}
+
+
+def tray_children(surface_id):
+    """One icon that follows a single account: whichever is closest to any of its limits. It shows
+    that account's main limit as a number in the account's color (its second limit if the plan has no
+    main one), over a bar for its second limit, both turning amber and red like the widget. "!" or "--" when no account has a reading yet."""
+    slots = all_slots()
+
+    def closeness(slot):
+        key, main, second = slot["key"], slot["main"], slot["second"]
+        value = eff_pct(key, main)
+        if second:
+            value = f"max({value}, {eff_pct(key, second)})"
+        return f"if({slot['present']} && ({key}.available != 0), {value}, -1)"
+
+    near = [closeness(slot) for slot in slots]
+    objects = []
+    for i, slot in enumerate(slots):
+        # Ties go to the earlier slot, so exactly one account wins.
+        wins = " && ".join([f"({near[i]} >= 0)"] + [f"({near[i]} > {near[j]})" for j in range(i)]
+                           + [f"({near[i]} >= {near[j]})" for j in range(i + 1, len(slots))])
+        group = f"tray-{slot['slug']}"
+        objects.append(layer(group, slot["title"], surface_id, 0, 0, 64, 64, render=wins))
+        key, main = slot["key"], slot["main"]
+        second = slot["second"] or main
+        # A plan without the main window (some Codex plans have no 5-hour limit) shows its second.
+        pct = f"if({missing(key, main)}, {eff_pct(key, second)}, {eff_pct(key, main)})"
+        shown = f"round(if(display.countdown, 100 - ({pct}), {pct}))"
+        for theme, cond in THEMES:
+            for render, level in warn_states(pct):
+                color = WARN[level][1 if theme == "dark" else 2] if level else slot["text"][theme]
+                number = text(f"{{{shown}:0}}", color, 36, "bold", "center", faded(key, "1", "0.45"))
+                number["font_size"] = f"if({shown} >= 100, 26, 36)"  # "100" needs a smaller size to fit
+                objects.append(layer(f"{group}-number-{level or 'ok'}-{theme}",
+                                     f"{theme} {main} number ({level or 'normal'})", group, -6, -6, 76, 54,
+                                     number, f"({cond}) && {render}"))
+            objects.append(shape(f"{group}-track-{theme}", f"{theme} {second} track", group, 4, 50, 56, 11,
+                                 TRAY_TRACK[theme], 5.5, cond))
+        bar_pct = eff_pct(key, second)
+        for render, level in warn_states(bar_pct):
+            color = WARN[level][0] if level else slot["fill"]
+            objects.append(layer(f"{group}-bar-{level or 'ok'}", f"{second} bar ({level or 'normal'})", group,
+                                 4, 50, 56, 11, progress(eff_disp(key, second), color, 5.5,
+                                                         opacity=faded(key, "1", "0.45")), render))
+    # No reading anywhere: the first account's "!" (failed) or "--" (loading), or "--" with no accounts.
+    none = " && ".join(f"({value} < 0)" for value in near)
+    objects.append(layer("tray-status", "No reading yet", surface_id, 0, 0, 64, 64, render=none))
+    present = [slot["present"] for slot in slots]
+    for i, slot in enumerate(slots):
+        first = " && ".join([slot["present"]] + [f"!{p}" for p in present[:i]])
+        for theme, cond in THEMES:
+            objects.append(layer(f"tray-{slot['slug']}-status-{theme}", f"{theme} {slot['title']} status",
+                                 "tray-status", 0, -6, 64, 54,
+                                 text(f"{{{slot['key']}.{slot['main']}.display:usage_badge}}", NEUTRAL[theme]["strong"],
+                                      36, "bold", "center"),
+                                 f"({cond}) && {first}"))
+    for theme, cond in THEMES:
+        objects.append(layer(f"tray-no-accounts-{theme}", f"{theme} no accounts yet", "tray-status", 0, -6, 64, 54,
+                             text("--", NEUTRAL[theme]["strong"], 36, "bold", "center"),
+                             f"({cond}) && !({' || '.join(present)})"))
+    return objects
+
+
 # ---------------------------------------------------------------- assembly
 
 def build_theme(design, base):
@@ -433,6 +500,15 @@ def build_theme(design, base):
     ids = [o["id"] for o in objects]
     assert len(ids) == len(set(ids)), f"duplicate ids in {theme['id']}"
     assert all(o["parent"] in set(ids) | {"main"} for o in objects), f"dangling parent in {theme['id']}"
+
+    # The tray icon keeps its place among the surfaces, so Windows remembers whether you pinned it.
+    tray = next(s for s in theme["surfaces"] if s["id"] == TRAY_SURFACE)
+    tray["name"] = "Headroom tray icon"
+    tray["background"], tray["border"] = {"type": "none"}, None
+    tray["mouse_events"]["double_click"] = "show_dashboard()"
+    tray["children"] = tray_children(TRAY_SURFACE)
+    tray_ids = [o["id"] for o in tray["children"]]
+    assert len(tray_ids) == len(set(tray_ids)), f"duplicate tray ids in {theme['id']}"
     return theme
 
 

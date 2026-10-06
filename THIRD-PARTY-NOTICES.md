@@ -6,8 +6,8 @@ Every theme in this repository starts from the built-in Compact Fluent Quad them
 [Claude Code Usage Monitor](https://github.com/CodeZeno/Claude-Code-Usage-Monitor)
 (`src/themes/compact-fluent-quad.json`, vendored at
 [generator/vendor/compact-fluent-quad.json](generator/vendor/compact-fluent-quad.json)). The themes
-keep its tray icon surfaces and the main widget's taskbar placement; the widget's contents are
-replaced.
+keep its tray icon surfaces and the main widget's taskbar placement; the widget's contents and the
+shared tray icon's contents are replaced.
 
 ```
 MIT License

@@ -147,6 +147,22 @@ fn save(rendered: &RenderedTheme, path: &Path, dark: bool) {
     image::RgbImage::from_raw(rendered.width, rendered.height, rgb).unwrap().save(path).unwrap();
 }
 
+/// Save the tray icon as Windows would show it at 16, 24 and 32 px, with its transparency kept.
+fn save_tray(rendered: &RenderedTheme, out: &Path, stem: &str, mode: &str) {
+    let mut rgba = Vec::with_capacity(rendered.pixels.len() * 4);
+    for pixel in &rendered.pixels {
+        let a = (pixel >> 24) & 0xFF;
+        let straight = |c: u32| if a == 0 { 0 } else { ((c * 255 + a / 2) / a).min(255) as u8 };
+        rgba.extend([straight((pixel >> 16) & 0xFF), straight((pixel >> 8) & 0xFF), straight(pixel & 0xFF), a as u8]);
+    }
+    let icon = image::RgbaImage::from_raw(rendered.width, rendered.height, rgba).unwrap();
+    for size in [16, 24, 32] {
+        image::imageops::resize(&icon, size, size, image::imageops::FilterType::Triangle)
+            .save(out.join(format!("{stem}__tray{size}__{mode}.png")))
+            .unwrap();
+    }
+}
+
 /// The widget width each design should take for `count` accounts.
 fn expected_width(theme_id: &str, count: usize) -> u32 {
     match theme_id {
@@ -208,6 +224,9 @@ fn theme_pack_validates_and_renders() {
     ));
     scenarios.push(("reset".into(), with(&[(1, ok((100.0, -60), (63.0, 5 * 86400)))]), runtime));
     scenarios.push(("error-loading".into(), with(&[(0, Slot::Error), (2, Slot::Loading)]), runtime.with_poll_state(true, true)));
+    // The account closest to its limits has no 5-hour window.
+    scenarios.push(("no-5h-closest".into(), with(&[(2, Slot::Ok(None, Some((95.0, 2 * 86400)), false))]), runtime));
+    scenarios.push(("all-failed".into(), with(&[(0, Slot::Error), (1, Slot::Error), (2, Slot::Error)]), runtime.with_poll_state(false, true)));
     scenarios.push(("remaining".into(), Some(base.clone()), runtime.with_countdown(true)));
     let long: Vec<Acct> = accounts(&[(C, "default", "WORK"), (C, "account_1", "HOME"), (X, "default", "TEAM")])
         .into_iter()
@@ -260,6 +279,17 @@ fn theme_pack_validates_and_renders() {
             if width != expected {
                 problems.push(format!("{} {name}: width {width}, expected {expected}", theme.id));
             }
+            // The tray icon: it must render cleanly and never come out blank.
+            let tray = theme.surfaces.iter().position(|surface| surface.id == "shared-tray-icon").unwrap();
+            let rendered = render_theme_surface_with_runtime_at_scale(&theme, tray, data.as_ref(), *runtime, 1.0);
+            rendered_count += 1;
+            for warning in &rendered.warnings {
+                problems.push(format!("{} {name} tray: {warning}", theme.id));
+            }
+            if rendered.pixels.iter().all(|pixel| pixel >> 24 == 0) {
+                problems.push(format!("{} {name} tray: blank icon", theme.id));
+            }
+            save_tray(&rendered, &out, &format!("{}__{name}", theme.id), mode);
             for (hovered, effective) in [(false, &theme), (true, &hovered_theme)] {
                 for scale in [1.0, 1.25, 1.5, 1.75, 2.0] {
                     let started = Instant::now();

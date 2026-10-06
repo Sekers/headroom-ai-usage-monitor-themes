@@ -3,8 +3,9 @@
 Checks the themes with Claude Code Usage Monitor's own code rather than a lookalike: it loads each
 theme through the monitor's theme loader, which also validates it, and renders it with the monitor's
 engine at five display scales (100% to 200%), normal and hovered, for many account and provider
-mixes. It fails on any load, validation or render problem, and checks the widget's width for every
-mix. It also saves PNGs, which `make_previews.py` and `screenshot.js` turn into the README's previews.
+mixes. It also renders the tray icon for every mix. It fails on any load, validation or render
+problem or a blank tray icon, and checks the widget's width for every mix. It saves PNGs too, which
+`make_previews.py` and `screenshot.js` turn into the README's previews.
 
 | File | What it is |
 | --- | --- |
@@ -16,8 +17,8 @@ mix. It also saves PNGs, which `make_previews.py` and `screenshot.js` turn into 
 The mixes cover 1 to 7 Claude and Codex accounts in every combination, account IDs with gaps,
 accounts with the names the monitor gave them, every other provider on, providers without Claude,
 and a provider with no reading yet. Each also renders with a stale reading, a passed reset, a failed
-refresh, loading, a plan without a 5-hour window, weekly limits running high, Remaining mode, and
-four-letter names at 100%.
+refresh, every refresh failing, loading, a plan without a 5-hour window, weekly limits running high,
+Remaining mode, and four-letter names at 100%.
 
 ## Run it on Windows
 

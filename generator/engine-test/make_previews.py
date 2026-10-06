@@ -38,6 +38,14 @@ PER_THEME = [("c1x0", "1 Claude account", "dark"), ("c1x1", "1 Claude + 1 Codex"
              ("all-providers", "Claude + Codex + 5 other providers", "dark"),
              ("weekly-high", "Weekly limits running high", "dark"), ("c2x1", "Light taskbar", "light")]
 
+# The tray icon is the same in every theme, so its page uses Lanes' renders.
+TRAY = [("c1x0", "PER 34% · 41%"), ("c2x1", "PER 34/41, WRK 82/63, CDX 95/88: CDX is closest"),
+        ("weekly-high", "PER 21/80, WRK 30/100, CDX 10/60: WRK's weekly is spent"),
+        ("states", "PER out of date, WRK 82/63 is closest"),
+        ("no-5h-closest", "CDX has no 5-hour window, weekly 95"), ("remaining", "Showing what's left"),
+        ("providers-only", "Only Cursor, Grok and Copilot"), ("error-loading", "PER failed, CDX loading, WRK 82/63 shown"),
+        ("all-failed", "Every refresh failed"), ("no-data", "Nothing read yet"), ("no-accounts", "No accounts set up")]
+
 
 def image(pngs, design, scenario, hover, mode):
     suffix = "-hover" if hover else ""
@@ -66,6 +74,18 @@ def main(pngs, out):
         rows = [f"<tr><td>{label}</td>{image(pngs, design, key, False, mode)}{image(pngs, design, key, True, mode)}</tr>"
                 for key, label, mode in PER_THEME]
         pages[design.removeprefix("headroom-")] = page(name, header, rows)
+    header = "<tr><th></th><th>dark taskbar</th><th>light taskbar</th></tr>"
+    rows = []
+    for key, label in TRAY:
+        cells = ""
+        for mode, color in (("dark", "#202020"), ("light", "#eeeeee")):
+            icons = "".join(f'<img src="{(pngs / f"headroom-lanes__{key}__tray{size}__{mode}.png").resolve().as_uri()}" '
+                            f'style="margin:0 8px;vertical-align:middle">' for size in (16, 24, 32))
+            icons += (f'<img src="{(pngs / f"headroom-lanes__{key}__tray32__{mode}.png").resolve().as_uri()}" '
+                      f'style="width:64px;height:64px;image-rendering:pixelated;margin:0 8px;vertical-align:middle">')
+            cells += f'<td style="background:{color};padding:6px 4px">{icons}</td>'
+        rows.append(f"<tr><td>{label}</td>{cells}</tr>")
+    pages["tray"] = page("Headroom tray icon at 16, 24 and 32 px, then 32 px enlarged", header, rows)
     for name, html in pages.items():
         (out / f"{name}.html").write_text(html, encoding="utf-8")
         print(out / f"{name}.html")

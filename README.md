@@ -104,8 +104,8 @@ Each account or provider you use gets one slot, in this order:
 * **Accounts you haven't renamed** keep the names the monitor gave them, "Default" and "Account 1",
   "Account 2" and so on. Those show as `CLD` or `CDX` for a provider's first account and with the
   account's number after that, such as `CLD2` or `CDX3`.
-* **The Default account dropdown** doesn't change what these themes show; it still picks the account
-  behind the tray icons.
+* **The Default account dropdown** doesn't change what these themes show; it only picks the account
+  the tray icon's tooltip describes.
 * **Account IDs.** The monitor gives each account a fixed ID: a provider's first account is `default`,
   accounts you add are `account_1`, `account_2` and so on, and an ID is never reused. The themes look
   for `default` through `account_4` for each provider, which is where the limit of 5 comes from. If you've removed and added accounts often
@@ -155,6 +155,34 @@ The same four themes in each state, shown for 2 Claude + 1 Codex:
 
 ![The four themes in each state, shown for 2 Claude + 1 Codex](previews/states.png)
 
+## The tray icon
+
+Every theme comes with the same tray icon, so you can keep an eye on your limits with the widget
+hidden.
+
+* **One account at a time.** The icon shows whichever account is closest to any of its limits: its
+  main limit (the 5-hour window, for Claude and Codex) as a number in the account's color, over a
+  bar for its second limit. A plan without a 5-hour window shows its weekly limit in both places.
+  Both turn amber and red like the widget, so a weekly limit that's running out shows even when the
+  number is low. Grok and Copilot, which have one limit, show it in both places.
+* **Faded, `!` and `--`** mean the same as on the widget.
+* **Hover** for the monitor's tooltip: each provider's usage for its default account, or why a refresh
+  failed.
+* **Pin it** to keep it on the taskbar: Windows puts new tray icons under the **^** arrow at first.
+
+![The tray icon in each state, on dark and light taskbars](previews/tray.png)
+
+## Clicks
+
+| | Widget | Tray icon |
+| --- | --- | --- |
+| Click | Nothing; drag to move it | Hide or show the widget |
+| Double-click | Open the dashboard | Open the dashboard |
+| Right-click | The monitor's menu | The monitor's menu |
+| Hover | Switch to the second limit | The monitor's tooltip |
+
+A single click on the tray icon takes a moment, while Windows waits to see whether it's a double-click.
+
 ## Make your own
 
 The themes come from [generator/build.py](generator/build.py). Edit `ACCOUNT_IDS`, the colors, the
@@ -170,8 +198,8 @@ previews, see [generator/engine-test](generator/engine-test/README.md).
 
 ## Credits and license
 
-MIT; see [LICENSE](LICENSE). The tray icons come from Claude Code Usage Monitor's built-in Compact
-Fluent Quad theme (MIT, Code Zeno Pty Ltd); see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+MIT; see [LICENSE](LICENSE). The themes start from Claude Code Usage Monitor's built-in Compact Fluent
+Quad theme (MIT, Code Zeno Pty Ltd); see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
 This project isn't affiliated with or endorsed by CodeZeno or any of the AI providers it shows.
 Product names are trademarks of their owners.
